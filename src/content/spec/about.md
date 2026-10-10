@@ -1,7 +1,10 @@
 # About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
+此网站使用[Fuwari](https://github.com/saicaca/fuwari)模板构建
 
 ::github{repo="saicaca/fuwari"}
+
+# Statement
+为提升效率,使用ai工具辅助排版
 
 > ### Sources of images used in this site
 > - [Unsplash](https://unsplash.com/)
