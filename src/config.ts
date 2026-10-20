@@ -29,6 +29,15 @@ export const siteConfig: SiteConfig = {
 		enable: true, // Display the table of contents on the right side of the post
 		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
 	},
+	welcomeOverlay: {
+		enable: true, // Show the welcome screen before entering the site
+		wallpaper: "assets/images/demo-banner.png", // Relative to /src, or to /public if it starts with "/"
+		// title: "enoa-blog", // Defaults to siteConfig.title
+		// subtitle: "数学技巧の仓库", // Defaults to siteConfig.subtitle
+		buttonText: "进入网站", // Text of the enter button
+		showOnce: true, // Only show on the first visit of a browser session
+		veilOpacity: 0.45, // Darkening layer over the wallpaper, 0 - 1
+	},
 	favicon: [
 		// Leave this array empty to use the default favicon
 		// {

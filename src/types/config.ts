@@ -35,6 +35,21 @@ export type SiteConfig = {
 		depth: 1 | 2 | 3;
 	};
 
+	welcomeOverlay: {
+		enable: boolean;
+		/** Relative to /src, or relative to /public when it starts with "/" */
+		wallpaper: string;
+		/** Falls back to siteConfig.title when omitted */
+		title?: string;
+		/** Falls back to siteConfig.subtitle when omitted */
+		subtitle?: string;
+		buttonText: string;
+		/** Show only on the first visit of a browser session */
+		showOnce: boolean;
+		/** Darkening layer over the wallpaper, from 0 to 1 */
+		veilOpacity: number;
+	};
+
 	favicon: Favicon[];
 };
 

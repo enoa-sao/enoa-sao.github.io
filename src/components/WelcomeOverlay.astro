@@ -1,0 +1,575 @@
+---
+import { Image } from "astro:assets";
+import path from "node:path";
+import { siteConfig } from "@/config";
+import { url } from "../utils/url-utils";
+
+const overlay = siteConfig.welcomeOverlay;
+
+const enable = overlay.enable;
+const title = overlay.title?.trim() || siteConfig.title;
+const subtitle = overlay.subtitle?.trim() || siteConfig.subtitle;
+const buttonText = overlay.buttonText?.trim() || "进入网站";
+const wallpaper = overlay.wallpaper;
+const veil = overlay.veilOpacity;
+
+const isLocal = !(
+	wallpaper.startsWith("/") ||
+	wallpaper.startsWith("http") ||
+	wallpaper.startsWith("https") ||
+	wallpaper.startsWith("data:")
+);
+const isPublic = wallpaper.startsWith("/");
+
+// Resolve a wallpaper stored under /src the same way the banner is resolved.
+// biome-ignore lint/suspicious/noImplicitAnyLet: resolved dynamically below
+let wallpaperImage;
+if (isLocal) {
+	const files = import.meta.glob<ImageMetadata>(
+		"../**/*.{png,jpg,jpeg,webp,avif}",
+		{ import: "default" },
+	);
+	const normalized = path
+		.normalize(path.join("../", wallpaper))
+		.replace(/\\/g, "/");
+	const file = files[normalized];
+	if (file) {
+		wallpaperImage = await file();
+	} else {
+		console.error(
+			`\n[ERROR] Welcome overlay wallpaper not found: ${normalized.replace("../", "src/")}`,
+		);
+	}
+}
+
+const wallpaperSrc = isLocal
+	? undefined
+	: isPublic
+		? url(wallpaper)
+		: wallpaper;
+
+const chars = [...title];
+const year = new Date().getFullYear();
+---
+
+{
+	enable && (
+		<div
+			id="welcome-overlay"
+			class="welcome-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="welcome-overlay-title"
+			style={`--welcome-veil:${veil}`}
+		>
+			<div class="welcome-overlay__media" aria-hidden="true">
+				{wallpaperImage ? (
+					<Image
+						src={wallpaperImage}
+						alt=""
+						class="welcome-overlay__img"
+						loading="eager"
+						decoding="async"
+						fetchpriority="high"
+					/>
+				) : (
+					<img
+						src={wallpaperSrc}
+						alt=""
+						class="welcome-overlay__img"
+						loading="eager"
+						decoding="async"
+					/>
+				)}
+			</div>
+			<div class="welcome-overlay__veil" aria-hidden="true" />
+			<div class="welcome-overlay__content">
+				<p class="welcome-overlay__eyebrow" aria-hidden="true">
+					<span />
+					Welcome
+					<span />
+				</p>
+				<h1
+					id="welcome-overlay-title"
+					class="welcome-overlay__title"
+					aria-label={title}
+				>
+					{chars.map((char, index) =>
+						char === " " ? (
+							<span
+								class="welcome-char welcome-char--space"
+								style={`--char-index:${index}`}
+								aria-hidden="true"
+							>
+								&nbsp;
+							</span>
+						) : (
+							<span
+								class="welcome-char"
+								style={`--char-index:${index}`}
+								aria-hidden="true"
+							>
+								{char}
+							</span>
+						),
+					)}
+				</h1>
+				{subtitle && (
+					<p class="welcome-overlay__subtitle" aria-hidden="true">
+						{subtitle}
+					</p>
+				)}
+				<button
+					type="button"
+					class="welcome-overlay__enter"
+					id="welcome-overlay-enter"
+				>
+					<span>{buttonText}</span>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M5 12h14" />
+						<path d="m13 6 6 6-6 6" />
+					</svg>
+				</button>
+			</div>
+			<p class="welcome-overlay__footer" aria-hidden="true">
+				<span>{siteConfig.title}</span>
+				<span class="welcome-overlay__dot" />
+				<span>{year}</span>
+			</p>
+		</div>
+	)
+}
+
+<noscript>
+	<style>
+		#welcome-overlay {
+			display: none !important;
+		}
+		html.welcome-open,
+		html.welcome-open body {
+			overflow: auto !important;
+		}
+	</style>
+</noscript>
+
+<style is:global>
+	#welcome-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		isolation: isolate;
+		background-color: #07080d;
+		transition:
+			opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+			visibility 0.8s linear;
+	}
+
+	#welcome-overlay.is-leaving {
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	html.welcome-open,
+	html.welcome-open body {
+		overflow: hidden !important;
+	}
+
+	html.welcome-skip #welcome-overlay {
+		display: none !important;
+	}
+
+	.welcome-overlay__media {
+		position: absolute;
+		inset: -2%;
+		z-index: -2;
+		transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+		will-change: transform;
+	}
+
+	.welcome-overlay__img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		animation: welcome-kenburns 26s ease-in-out infinite alternate;
+	}
+
+	.welcome-overlay__veil {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background-color: #05060a;
+		opacity: var(--welcome-veil, 0.45);
+		pointer-events: none;
+	}
+
+	.welcome-overlay__veil::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(
+				ellipse at 50% 42%,
+				rgba(0, 0, 0, 0) 25%,
+				rgba(0, 0, 0, 0.35) 70%,
+				rgba(0, 0, 0, 0.68) 100%
+			),
+			linear-gradient(
+				180deg,
+				rgba(3, 4, 8, 0.45) 0%,
+				rgba(3, 4, 8, 0) 35%,
+				rgba(3, 4, 8, 0) 65%,
+				rgba(3, 4, 8, 0.5) 100%
+			);
+	}
+
+	#welcome-overlay.is-leaving .welcome-overlay__media {
+		transform: scale(1.06);
+	}
+
+	.welcome-overlay__content {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		max-width: 56rem;
+		padding: 2rem 1.5rem;
+		text-align: center;
+		transition:
+			opacity 0.65s ease,
+			transform 0.65s ease;
+	}
+
+	#welcome-overlay.is-leaving .welcome-overlay__content {
+		opacity: 0;
+		transform: translateY(-1.5rem) scale(0.985);
+	}
+
+	.welcome-overlay__eyebrow {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin: 0 0 1.6rem;
+		color: rgba(255, 255, 255, 0.68);
+		font-size: 0.7rem;
+		font-weight: 500;
+		letter-spacing: 0.55em;
+		text-transform: uppercase;
+		opacity: 0;
+		animation: welcome-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+	}
+
+	.welcome-overlay__eyebrow span {
+		display: block;
+		width: 2.75rem;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65));
+	}
+
+	.welcome-overlay__eyebrow span:last-child {
+		transform: scaleX(-1);
+	}
+
+	.welcome-overlay__title {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		margin: 0;
+		color: #fff;
+		font-size: clamp(2.15rem, 7.5vw, 5.25rem);
+		font-weight: 700;
+		line-height: 1.1;
+		letter-spacing: 0.03em;
+		text-shadow: 0 0.35rem 2.5rem rgba(0, 0, 0, 0.5);
+	}
+
+	.welcome-char {
+		display: inline-block;
+		opacity: 0;
+		filter: blur(10px);
+		transform: translateY(0.85em) scale(0.96);
+		animation: welcome-char 1.05s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+		animation-delay: calc(0.38s + var(--char-index, 0) * 36ms);
+	}
+
+	.welcome-char--space {
+		width: 0.32em;
+	}
+
+	.welcome-overlay__subtitle {
+		margin: 1.4rem 0 0;
+		color: rgba(255, 255, 255, 0.76);
+		font-size: clamp(0.85rem, 2vw, 1.05rem);
+		font-weight: 400;
+		letter-spacing: 0.24em;
+		opacity: 0;
+		animation: welcome-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1s forwards;
+	}
+
+	.welcome-overlay__enter {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		margin-top: 2.6rem;
+		padding: 0.85rem 1.9rem;
+		border: 1px solid rgba(255, 255, 255, 0.38);
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.1);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+		color: #fff;
+		font-family: inherit;
+		font-size: 0.98rem;
+		letter-spacing: 0.16em;
+		cursor: pointer;
+		opacity: 0;
+		animation:
+			welcome-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.25s forwards,
+			welcome-pulse 3.4s ease-in-out 2.6s infinite;
+		transition:
+			background-color 0.35s ease,
+			border-color 0.35s ease,
+			transform 0.35s ease,
+			box-shadow 0.35s ease;
+	}
+
+	.welcome-overlay__enter:hover {
+		border-color: rgba(255, 255, 255, 0.75);
+		background: rgba(255, 255, 255, 0.2);
+		transform: translateY(-2px);
+		box-shadow:
+			0 1.2rem 2.5rem -1.2rem rgba(0, 0, 0, 0.75),
+			0 0 2.5rem rgba(255, 255, 255, 0.12);
+	}
+
+	.welcome-overlay__enter:active {
+		transform: translateY(0) scale(0.98);
+	}
+
+	.welcome-overlay__enter:focus-visible {
+		outline: 2px solid rgba(255, 255, 255, 0.9);
+		outline-offset: 4px;
+	}
+
+	.welcome-overlay__enter svg {
+		width: 1.05rem;
+		height: 1.05rem;
+		transition: transform 0.35s ease;
+	}
+
+	.welcome-overlay__enter:hover svg {
+		transform: translateX(4px);
+	}
+
+	.welcome-overlay__footer {
+		position: absolute;
+		right: 2rem;
+		bottom: 1.9rem;
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		color: rgba(255, 255, 255, 0.5);
+		font-size: 0.68rem;
+		letter-spacing: 0.3em;
+		text-transform: uppercase;
+		opacity: 0;
+		animation: welcome-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.6s forwards;
+	}
+
+	.welcome-overlay__dot {
+		width: 3px;
+		height: 3px;
+		border-radius: 999px;
+		background: currentColor;
+	}
+
+	@keyframes welcome-char {
+		to {
+			opacity: 1;
+			filter: blur(0);
+			transform: translateY(0) scale(1);
+		}
+	}
+
+	@keyframes welcome-rise {
+		from {
+			opacity: 0;
+			transform: translateY(1rem);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes welcome-kenburns {
+		from {
+			transform: scale(1.02);
+		}
+		to {
+			transform: scale(1.1);
+		}
+	}
+
+	@keyframes welcome-pulse {
+		0%,
+		100% {
+			box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+		}
+		50% {
+			box-shadow: 0 0 0 0.45rem rgba(255, 255, 255, 0.06);
+		}
+	}
+
+	@media (max-width: 640px) {
+		.welcome-overlay__title {
+			font-size: clamp(2rem, 11vw, 3rem);
+		}
+
+		.welcome-overlay__subtitle {
+			letter-spacing: 0.18em;
+		}
+
+		.welcome-overlay__footer {
+			right: 1.25rem;
+			left: 1.25rem;
+			bottom: 1.4rem;
+			justify-content: center;
+			letter-spacing: 0.2em;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.welcome-overlay__img,
+		.welcome-overlay__enter {
+			animation: none !important;
+		}
+
+		.welcome-overlay__eyebrow,
+		.welcome-overlay__subtitle,
+		.welcome-overlay__footer,
+		.welcome-overlay__enter,
+		.welcome-char {
+			opacity: 1 !important;
+			filter: none !important;
+			transform: none !important;
+			animation: none !important;
+		}
+
+		#welcome-overlay,
+		.welcome-overlay__content,
+		.welcome-overlay__media {
+			transition-duration: 0.01ms !important;
+		}
+	}
+</style>
+
+<script>
+	import { siteConfig } from "@/config";
+
+	const storageKey = "enoa-blog:welcome-overlay";
+	const overlay = document.getElementById("welcome-overlay");
+	const button = document.getElementById(
+		"welcome-overlay-enter",
+	) as HTMLButtonElement | null;
+
+	if (overlay) {
+		const html = document.documentElement;
+		const body = document.body;
+		const showOnce = siteConfig.welcomeOverlay.showOnce;
+		const reducedMotion = window.matchMedia(
+			"(prefers-reduced-motion: reduce)",
+		).matches;
+
+		let entering = false;
+		let previousBodyOverflow = "";
+
+		const blockScroll = (event: Event) => {
+			if (!entering) {
+				event.preventDefault();
+			}
+		};
+
+		const unlockScroll = () => {
+			html.classList.remove("welcome-open");
+			body.style.overflow = previousBodyOverflow;
+			window.removeEventListener("wheel", blockScroll);
+			window.removeEventListener("touchmove", blockScroll);
+		};
+
+		const enter = () => {
+			if (entering) return;
+			entering = true;
+
+			// Mark the current browser session so the overlay is not shown again
+			// during in-site navigation or a refresh (when showOnce is enabled).
+			try {
+				if (showOnce) {
+					sessionStorage.setItem(storageKey, "1");
+				}
+			} catch {
+				// sessionStorage can be unavailable in private/restricted contexts
+			}
+
+			html.classList.add("welcome-skip");
+			overlay.classList.add("is-leaving");
+			overlay.setAttribute("aria-hidden", "true");
+			unlockScroll();
+
+			window.setTimeout(
+				() => {
+					overlay.style.display = "none";
+				},
+				reducedMotion ? 20 : 850,
+			);
+
+			document.dispatchEvent(new CustomEvent("welcome:enter"));
+		};
+
+		if (html.classList.contains("welcome-skip")) {
+			overlay.style.display = "none";
+			unlockScroll();
+		} else {
+			previousBodyOverflow = body.style.overflow;
+			body.style.overflow = "hidden";
+			window.addEventListener("wheel", blockScroll, { passive: false });
+			window.addEventListener("touchmove", blockScroll, {
+				passive: false,
+			});
+
+			button?.addEventListener("click", enter);
+			button?.focus({ preventScroll: true });
+
+			document.addEventListener("keydown", (event) => {
+				if (overlay.style.display === "none") return;
+
+				if (event.key === "Escape") {
+					event.preventDefault();
+					enter();
+					return;
+				}
+
+				if (event.key === "Tab") {
+					event.preventDefault();
+					button?.focus({ preventScroll: true });
+				}
+			});
+		}
+	}
+</script>

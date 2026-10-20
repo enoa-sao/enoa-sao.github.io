@@ -4,6 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import ConfigCarrier from "@components/ConfigCarrier.astro";
+import WelcomeOverlay from "@components/WelcomeOverlay.astro";
 import { profileConfig, siteConfig } from "@/config";
 import {
 	AUTO_MODE,
@@ -137,6 +138,26 @@ const bannerOffset =
 			offset = offset - offset % 4;
 			document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
 		</script>
+
+		<!-- Decide whether the welcome screen opens before the body is painted, to avoid a flash -->
+		{siteConfig.welcomeOverlay.enable && (
+			<script is:inline define:vars={{ showOnce: siteConfig.welcomeOverlay.showOnce }}>
+				(function () {
+					const html = document.documentElement;
+					if (html.classList.contains("welcome-skip")) return;
+					try {
+						if (showOnce && sessionStorage.getItem("enoa-blog:welcome-overlay") === "1") {
+							html.classList.add("welcome-skip");
+							return;
+						}
+					} catch (e) {
+						// ignore restricted storage
+					}
+					html.classList.add("welcome-open");
+				})();
+			</script>
+		)}
+
 		<style define:vars={{
 			configHue,
 			'page-width': `${PAGE_WIDTH}rem`,
@@ -153,6 +174,9 @@ const bannerOffset =
 	>
 		<ConfigCarrier></ConfigCarrier>
 		<slot />
+
+		<!-- Welcome screen: wallpaper + centered title + enter button -->
+		<WelcomeOverlay />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
