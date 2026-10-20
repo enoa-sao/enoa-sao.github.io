@@ -48,20 +48,20 @@ export const siteConfig: SiteConfig = {
 		// or use a full https URL. Cover images are optional.
 		playlist: [
 			{
-				name: "晨光",
-				artist: "示例音乐",
-				url: "/music/demo-morning.wav",
+				name: "「言って。 (说吧。)」",
+				artist: "Yorushika(ヨルシカ)",
+				url: "https://jk.lyszm.com/down.php?hash=831a25f1e41b919db8fe7425df0ad42c",
 				cover: "/music/default-cover.svg",
 			},
 			{
-				name: "静夜",
-				artist: "示例音乐",
-				url: "/music/demo-night.wav",
+				name: "「花の塔」",
+				artist: "酸欠少女さユり",
+				url: "https://jk.lyszm.com/down.php?hash=3ac54eea3c9ee938c00d20e99b1b63f2",
 				cover: "/music/default-cover.svg",
 			},
 			{
 				name: "微风",
-				artist: "示例音乐",
+				artist: "demo",
 				url: "/music/demo-breeze.wav",
 				cover: "/music/default-cover.svg",
 			},
