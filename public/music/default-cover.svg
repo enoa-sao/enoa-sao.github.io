@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Music cover">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#121a3c"/>
+			<stop offset="0.55" stop-color="#2b2f6e"/>
+			<stop offset="1" stop-color="#0b6f8d"/>
+		</linearGradient>
+		<radialGradient id="glow" cx="0.28" cy="0.2" r="0.85">
+			<stop offset="0" stop-color="#a8c8ff" stop-opacity="0.5"/>
+			<stop offset="1" stop-color="#a8c8ff" stop-opacity="0"/>
+		</radialGradient>
+		<linearGradient id="bars" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#ffffff"/>
+			<stop offset="1" stop-color="#cfe6ff"/>
+		</linearGradient>
+	</defs>
+	<rect width="600" height="600" fill="url(#bg)"/>
+	<rect width="600" height="600" fill="url(#glow)"/>
+	<g fill="none" stroke="#ffffff" stroke-opacity="0.08">
+		<circle cx="300" cy="300" r="246"/>
+		<circle cx="300" cy="300" r="198"/>
+		<circle cx="300" cy="300" r="150"/>
+	</g>
+	<g fill="url(#bars)" opacity="0.95">
+		<rect x="190" y="256" width="28" height="88" rx="14"/>
+		<rect x="238" y="225" width="28" height="150" rx="14"/>
+		<rect x="286" y="182" width="28" height="236" rx="14"/>
+		<rect x="334" y="225" width="28" height="150" rx="14"/>
+		<rect x="382" y="256" width="28" height="88" rx="14"/>
+	</g>
+</svg>

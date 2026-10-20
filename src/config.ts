@@ -38,6 +38,35 @@ export const siteConfig: SiteConfig = {
 		showOnce: true, // Only show on the first visit of a browser session
 		veilOpacity: 0.45, // Darkening layer over the wallpaper, 0 - 1
 	},
+	musicPlayer: {
+		enable: true,
+		position: "bottom-left", // "bottom-left" or "bottom-right"
+		volume: 0.7, // Initial volume, 0 - 1
+		loop: "all", // "all" | "one" | "none"
+		// Replace these demo tracks with your own songs.
+		// Put audio files in public/music/ and use "/music/xxx.mp3",
+		// or use a full https URL. Cover images are optional.
+		playlist: [
+			{
+				name: "晨光",
+				artist: "示例音乐",
+				url: "/music/demo-morning.wav",
+				cover: "/music/default-cover.svg",
+			},
+			{
+				name: "静夜",
+				artist: "示例音乐",
+				url: "/music/demo-night.wav",
+				cover: "/music/default-cover.svg",
+			},
+			{
+				name: "微风",
+				artist: "示例音乐",
+				url: "/music/demo-breeze.wav",
+				cover: "/music/default-cover.svg",
+			},
+		],
+	},
 	favicon: [
 		// Leave this array empty to use the default favicon
 		// {

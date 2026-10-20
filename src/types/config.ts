@@ -50,7 +50,27 @@ export type SiteConfig = {
 		veilOpacity: number;
 	};
 
+	musicPlayer: MusicPlayerConfig;
+
 	favicon: Favicon[];
+};
+
+export type MusicTrack = {
+	name: string;
+	artist?: string;
+	/** Local file under /public (e.g. "/music/song.mp3") or a full http(s) URL */
+	url: string;
+	/** Cover image URL, falls back to the bundled default cover */
+	cover?: string;
+};
+
+export type MusicPlayerConfig = {
+	enable: boolean;
+	position: "bottom-left" | "bottom-right";
+	/** Initial volume, 0 - 1 */
+	volume: number;
+	loop: "all" | "one" | "none";
+	playlist: MusicTrack[];
 };
 
 export type Favicon = {

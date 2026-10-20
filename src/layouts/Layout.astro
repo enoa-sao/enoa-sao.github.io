@@ -4,6 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import ConfigCarrier from "@components/ConfigCarrier.astro";
+import MusicPlayer from "@components/MusicPlayer.astro";
 import WelcomeOverlay from "@components/WelcomeOverlay.astro";
 import { profileConfig, siteConfig } from "@/config";
 import {
@@ -177,6 +178,9 @@ const bannerOffset =
 
 		<!-- Welcome screen: wallpaper + centered title + enter button -->
 		<WelcomeOverlay />
+
+		<!-- Floating music player (keeps playing across page navigations) -->
+		<MusicPlayer />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
